@@ -26,9 +26,7 @@ describe("Noticias", () => {
 
   describe("Should render news", () => {
     it("should render cards", () => {
-      render(<Card /* image={""} title={""} date={""} handleBtn={function (event: MouseEvent<Element, globalThis.MouseEvent>): void {
-        throw new Error("Function not implemented.");
-      } }  *//>);
+      render(<Noticias />);
 
       const dados = data.map((item) => item.id)
       expect(dados).toHaveLength(3);
