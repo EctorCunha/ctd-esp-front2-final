@@ -17,6 +17,7 @@ body {
 .logo {
   width: 300px;
   margin: 1rem;
+  margin: 1rem auto;
 }
 
 .App-header {

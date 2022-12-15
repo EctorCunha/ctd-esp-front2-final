@@ -1,11 +1,4 @@
-export interface INoticias {
-  id: number;
-  titulo: string;
-  description: string;
-  date: Date;
-  premium: boolean;
-  image: string;
-}
+import { INoticias } from "./types";
 
 const simularTempDecorrido: (decrementMiliseconds: number) => Date = (
   decrementMiliseconds
@@ -15,10 +8,10 @@ const simularTempDecorrido: (decrementMiliseconds: number) => Date = (
   return time;
 };
 
-const data = [
+export const data = [
   {
     id: 1,
-    titulo: "Los Simpson 'predijeron' escasez de combustible",
+    title: "Los Simpson 'predijeron' escasez de combustible",
     description: `La más reciente es una teoría de que un episodio de 2010 del programa,
     titulado "Lisa Simpson, esta no es tu vida", predijo la crisis de combustible en el Reino Unido.
     Tras los informes de escasez de más de 100.000 vehículos, muchos conductores han estado comprando
@@ -34,7 +27,7 @@ const data = [
   },
   {
     id: 2,
-    titulo: "Los Simpsons se asocian con Marvel",
+    title: "Los Simpsons se asocian con Marvel",
     description: `Los Simpson se han asociado con Marvel para lanzar un nuevo corto exclusivo de Disney+. 
     "The Good, The Bart y The Loki" estará disponible exclusivamente para ver por aquellos que están registrados 
     en el servicio de suscripción.`,
@@ -47,7 +40,7 @@ const data = [
   },
   {
     id: 3,
-    titulo:
+    title:
       "Los Simpson mostraron a Richard Branson en el espacio en un episodio de 2014",
     description: `En un capítulo que se emitió por primera vez en 2014, un Richard
     Branson animado se reclinó y sonrió mientras flotaba en una nave espacial y admiraba algunas

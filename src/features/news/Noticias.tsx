@@ -1,134 +1,93 @@
 import { useEffect, useState } from "react";
-import { AssinarImage, CloseButton as Close } from "../../assets";
+import { AssinarImage } from "../../assets";
 import { obterNoticias } from "./fakeRest";
-import {
-  CloseButton,
-  CardModal,
-  ContainerModal,
-  DescriptionModal,
-  ImageModal,
-  TituloModal,
-  CardNoticia,
-  DateCardNoticia,
-  DescriptionCardNoticia,
-  ImageCardNoticia,
-  TituloCardNoticia,
-  ContainerNoticias,
-  ListaNoticias,
-  TituloNoticias,
-  BotaoLeitura,
-  BotaoAssinar,
-  ContainerTexto,
-} from "./styled";
+import { Modal } from "./Modal";
+import { Card } from "./Card";
+import { Container, NewsList, Title } from "./styled";
+import { INoticiasNormalizadas } from "./types";
 
-export interface INoticiasNormalizadas {
-  id: number;
-  titulo: string;
-  description: string;
-  date: number | string;
-  premium: boolean;
-  image: string;
-  descriptionCurto?: string;
-}
-
-const Noticias = () => {
-  const [noticias, setNoticias] = useState<INoticiasNormalizadas[]>([]);
+export const Noticias = () => {
+  const [newsInfo, setNewsInfo] = useState<INoticiasNormalizadas[]>([]);
   const [modal, setModal] = useState<INoticiasNormalizadas | null>(null);
 
+  // Principio de responsabilidade única
+  // Esse componente foi dividido em 3 componentes (Noticias, Card e Modal)
+
+  const obterInformacoes = async () => {
+    const resposta = await obterNoticias();
+
+    const data = resposta.map((data) => {
+      const title = data.title
+        .split(" ")
+        .map((str: string) => {
+          return str.charAt(0).toUpperCase() + str.slice(1);
+        })
+        .join(" ");
+
+      const hora = new Date();
+      const minutosDecorrido = Math.floor(
+        (hora.getTime() - data.date.getTime()) / 60000
+      );
+
+      return {
+        id: data.id,
+        title,
+        description: data.description,
+        date: `Faz ${minutosDecorrido} minutos`,
+        premium: data.premium,
+        image: data.image,
+        descriptionCurto: data.description.substring(0, 100),
+      };
+    });
+    setNewsInfo(data);
+  };
+
   useEffect(() => {
-    const obterInformacoes = async () => {
-      const resposta = await obterNoticias();
-
-      const data = resposta.map((n) => {
-        const titulo = n.titulo
-          .split(" ")
-          .map((str) => {
-            return str.charAt(0).toUpperCase() + str.slice(1);
-          })
-          .join(" ");
-
-        const hora = new Date();
-        const minutosDecorrido = Math.floor(
-          (hora.getTime() - n.date.getTime()) / 60000
-        );
-
-        return {
-          id: n.id,
-          titulo,
-          description: n.description,
-          date: `Faz ${minutosDecorrido} minutos`,
-          premium: n.premium,
-          image: n.image,
-          descriptionCurto: n.description.substring(0, 100),
-        };
-      });
-
-      setNoticias(data);
-    };
-
     obterInformacoes();
   }, []);
 
   return (
-    <ContainerNoticias>
-      <TituloNoticias>Noticias dos Simpsons</TituloNoticias>
-      <ListaNoticias>
-        {noticias.map((n) => (
-          <CardNoticia>
-            <ImageCardNoticia src={n.image} />
-            <TituloCardNoticia>{n.titulo}</TituloCardNoticia>
-            <DateCardNoticia>{n.date}</DateCardNoticia>
-            <DescriptionCardNoticia>
-              {n.descriptionCurto}
-            </DescriptionCardNoticia>
-            <BotaoLeitura onClick={() => setModal(n)}>Ver más</BotaoLeitura>
-          </CardNoticia>
+    <Container>
+      <Title>Notícias dos Simpsons</Title>
+      <NewsList>
+        {newsInfo.map((news) => (
+          <Card
+            key={news.id}
+            image={news.image}
+            title={news.title}
+            date={news.date}
+            descriptionCurto={news.descriptionCurto}
+            handleBtn={() => setModal(news)}
+          />
         ))}
+
         {modal ? (
           modal.premium ? (
-            <ContainerModal>
-              <CardModal>
-                <CloseButton onClick={() => setModal(null)}>
-                  <img src={Close} alt="close-button" />
-                </CloseButton>
-                <ImageModal src={AssinarImage} alt="mr-burns-excelent" />
-                <ContainerTexto>
-                  <TituloModal>Assine a nossa newsletter</TituloModal>
-                  <DescriptionModal>
-                    Assine nossa newsletter e receba novidades de nossos
-                    personagens favoritos
-                  </DescriptionModal>
-                  <BotaoAssinar
-                    onClick={() =>
-                      setTimeout(() => {
-                        alert("Suscripto!");
-                        setModal(null);
-                      }, 1000)
-                    }
-                  >
-                    Assinar
-                  </BotaoAssinar>
-                </ContainerTexto>
-              </CardModal>
-            </ContainerModal>
+            <Modal
+              image={AssinarImage}
+              title="Asine a newsletter"
+              description="Assine nossa newsletter e receba novidades de nossos personagens favoritos"
+              premium={true}
+              handleModal={() => setModal(null)}
+              handleModalSubscription={() =>
+                setTimeout(() => {
+                  alert("Inscrito com sucesso. Agora nós deve $ 100.000,00!");
+                  setModal(null);
+                }, 500)
+              }
+              buttonName="Assinar"
+            />
           ) : (
-            <ContainerModal>
-              <CardModal>
-                <CloseButton onClick={() => setModal(null)}>
-                  <img src={Close} alt="close-button" />
-                </CloseButton>
-                <ImageModal src={modal.image} alt="news-image" />
-                <ContainerTexto>
-                  <TituloModal>{modal.titulo}</TituloModal>
-                  <DescriptionModal>{modal.description}</DescriptionModal>
-                </ContainerTexto>
-              </CardModal>
-            </ContainerModal>
+            <Modal
+              image={modal.image}
+              title={modal.title}
+              description={modal.description}
+              premium={modal.premium}
+              handleModal={() => setModal(null)}
+            />
           )
         ) : null}
-      </ListaNoticias>
-    </ContainerNoticias>
+      </NewsList>
+    </Container>
   );
 };
-
-export default Noticias;
